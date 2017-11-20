@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<package>
+  <name>pcload</name>
+  <version>0.1.1</version>
+  <description>Convert Pose and LaserScan from .bag to point cloud</description>
+
+  <maintainer email="smirnoviv@rambler.ru">Igor Smirnov</maintainer>
+  <license>BSD</license>
+
+  <author email="smirnoviv@rambler.ru">Igor Smirnov</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>rosbag</build_depend>
+  <build_depend>sensor_msgs</build_depend>
+  <!--<build_depend>eigen_conversions</build_depend>-->
+
+  <!--<build_depend>mavros_msgs</build_depend>-->
+  <build_depend>geometry_msgs</build_depend>
+  <run_depend>catkin</run_depend>
+  <run_depend>roscpp</run_depend>
+  <run_depend>rosbag</run_depend>
+  <run_depend>sensor_msgs</run_depend>
+  <!--<run_depend>mavros_msgs</run_depend>-->
+  <run_depend>geometry_msgs</run_depend>
+  </package>
