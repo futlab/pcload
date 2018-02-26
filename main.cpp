@@ -3,6 +3,7 @@
 #include <sensor_msgs/LaserScan.h>
 #include <sensor_msgs/Imu.h>
 #include <geometry_msgs/PoseStamped.h>
+#include <geometry_msgs/Twist.h>
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
 #include <Eigen/Core>
@@ -15,17 +16,19 @@ int main(int argc, char *argv[])
     using namespace rosbag;
     using namespace pcl;
     using namespace Eigen;
-    if (!argc) {
+    if (argc <= 1) {
         printf(".bag file needed");
         return 1;
     }
     Bag bag;
     bag.open(argv[1], bagmode::Read);
-    vector<string> topics = {
+    const vector<string> topics = {
         "/scan",
         //"/mavros/imu/data",
-        "/mavros/local_position/pose"
+        "/mavros/local_position/pose",
+        "/encoder"
     };
+    const double encoderStep = 0.1;
 
     View view(bag, TopicQuery(topics));
     PointCloud<PointXYZ> cloud;
@@ -35,7 +38,7 @@ int main(int argc, char *argv[])
 
     Matrix3d orientation = Matrix3d::Identity();
     Vector3d position = Vector3d::Zero();
-
+    double xPrev = 0.0;
 
     for (MessageInstance const m : view) {
         sensor_msgs::LaserScan::ConstPtr ls = m.instantiate<sensor_msgs::LaserScan>();
@@ -54,6 +57,12 @@ int main(int argc, char *argv[])
         if (ps != nullptr) {
             const auto &o = ps->pose.orientation;
             orientation = Quaterniond(o.w, o.x, o.y, o.z).toRotationMatrix();
+        }
+        geometry_msgs::Twist::ConstPtr twist = m.instantiate<geometry_msgs::Twist>();
+        if (ps != nullptr) {
+            double x = twist->linear.x, dx = x - xPrev;
+            xPrev = x;
+            position += (dx * encoderStep) * orientation.block<3, 1>(0, 0);
         }
     }
     bag.close();
